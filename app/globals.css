@@ -126,6 +126,7 @@ small {
   border-radius: 999px;
   overflow: hidden;
   background: #fff;
+  color: var(--ink);
 }
 
 .stepper button {
