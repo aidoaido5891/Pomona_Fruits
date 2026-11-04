@@ -4,8 +4,8 @@
 
 export const SHOP = {
   name: 'Pomona Fruits',
-  // PLACEHOLDERS: replace these three before taking real orders.
-  city: '[Your city]',
+  city: 'Tallinn',
+  // PLACEHOLDERS: replace these two before taking real orders.
   pickupAddress: '[Your pickup address]',
   phone: '[Your shop phone number]',
   // Eastern European Time, including the summer time switch.
