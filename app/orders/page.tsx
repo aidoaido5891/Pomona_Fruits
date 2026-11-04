@@ -122,11 +122,15 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
     [orders, soldOut] = await Promise.all([listOrders(), getSoldOut()]);
   } catch (error) {
     console.error('Could not load orders', error);
+    // Shown only after login, and only the error code, which contains no secrets.
+    const code = (error as { code?: unknown }).code;
     return (
       <main className="admin-login">
         <h1>Orders</h1>
         <p className="error" role="alert">
-          The database could not be reached. Check that DATABASE_URL is set on this Railway service, then reload.
+          {process.env.DATABASE_URL
+            ? `DATABASE_URL is set, but the database could not be reached (error: ${typeof code === 'string' ? code : 'unknown'}).`
+            : 'DATABASE_URL is empty or not set on this Railway service.'}
         </p>
       </main>
     );
