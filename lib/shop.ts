@@ -178,6 +178,32 @@ export function findOrderProblem(input: OrderInput, soldOut: readonly FruitId[])
   return null;
 }
 
+export const BASKET_ITEMS = ['strawberries', 'lemons', 'cucumbers', 'magic_fruit_box'] as const;
+export type BasketItem = (typeof BASKET_ITEMS)[number];
+
+/** Sets one basket item to an exact amount, enforcing the same rules as the shop page. */
+export function setBasketItem(
+  basket: Basket,
+  item: BasketItem,
+  quantity: number,
+  soldOut: readonly FruitId[],
+): { basket: Basket } | { error: string } {
+  if (!BASKET_ITEMS.includes(item)) return { error: 'That is not something we sell.' };
+  if (!Number.isFinite(quantity) || quantity < 0) return { error: 'The amount must be zero or more.' };
+
+  if (item === 'magic_fruit_box') {
+    if (!Number.isInteger(quantity)) return { error: 'Boxes can only be bought whole.' };
+    if (quantity > MAX_BOXES) return { error: `The most boxes in one order is ${MAX_BOXES}.` };
+    if (quantity > basket.boxes && isBoxSoldOut(soldOut)) return { error: `The ${BOX.name} is sold out.` };
+    return { basket: { ...basket, boxes: quantity } };
+  }
+
+  if (!Number.isInteger(quantity * 2)) return { error: 'Fruit is sold in half-kilo steps.' };
+  if (quantity > MAX_KG_PER_FRUIT) return { error: `The most of one fruit in one order is ${MAX_KG_PER_FRUIT} kg.` };
+  if (quantity > basket.kg[item] && soldOut.includes(item)) return { error: `${item} are sold out.` };
+  return { basket: { ...basket, kg: { ...basket.kg, [item]: quantity } } };
+}
+
 // --- Time rules ---
 
 function shopClock(now: Date) {

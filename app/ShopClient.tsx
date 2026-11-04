@@ -24,6 +24,7 @@ import {
   type OrderResult,
 } from '../lib/shop';
 import { placeOrder } from './actions';
+import Charlie from './Charlie';
 
 type Confirmation = Extract<OrderResult, { ok: true }>;
 
@@ -120,8 +121,7 @@ export default function ShopClient({ initialNow, soldOut }: { initialNow: number
     </header>
   );
 
-  if (confirmation) {
-    return (
+  const page = confirmation ? (
       <>
         {header}
         <main className="confirmation">
@@ -148,10 +148,7 @@ export default function ShopClient({ initialNow, soldOut }: { initialNow: number
           </button>
         </main>
       </>
-    );
-  }
-
-  return (
+  ) : (
     <>
       {header}
 
@@ -390,8 +387,9 @@ export default function ShopClient({ initialNow, soldOut }: { initialNow: number
           <h2>Your privacy</h2>
           <p>
             We store your name, phone number, address and order so that we can deliver it and contact you about it.
-            We use no accounts and share your details with no one for marketing. To ask about your details or have
-            them removed, call us on {SHOP.phone}.
+            We use no accounts and share your details with no one for marketing. If you chat with Charlie, our AI
+            helper, your messages are saved and processed by our AI provider, Anthropic, so please keep personal
+            details out of the chat. To ask about your details or have them removed, call us on {SHOP.phone}.
           </p>
         </div>
         <div>
@@ -405,6 +403,14 @@ export default function ShopClient({ initialNow, soldOut }: { initialNow: number
           </p>
         </div>
       </footer>
+    </>
+  );
+
+  // Charlie stays outside the page content, so the chat carries on past the order confirmation.
+  return (
+    <>
+      {page}
+      <Charlie basket={basket} onBasketChange={setBasket} />
     </>
   );
 }

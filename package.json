@@ -11,6 +11,7 @@
     "test": "node --test tests/shop.test.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.5.0",
     "next": "^16.4.5",
     "pg": "^8.23.1",
     "react": "^19.3.1",

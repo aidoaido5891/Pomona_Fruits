@@ -7,6 +7,7 @@ import {
   parseBasket,
   priceBasket,
   promiseFor,
+  setBasketItem,
   type Basket,
   type FruitId,
   type OrderInput,
@@ -121,6 +122,26 @@ test('delivery details are required, and pickup details are not', () => {
   assert.match(findOrderProblem(order({ phone: 'call me' }), []) ?? '', /phone/);
   assert.match(findOrderProblem(order({ name: '' }), []) ?? '', /name/);
   assert.match(findOrderProblem(order({ basket: basket() }), []) ?? '', /empty/);
+});
+
+test('Charlie changes the basket only within the shop rules', () => {
+  const start = basket({ lemons: 1 });
+  assert.deepEqual(setBasketItem(start, 'strawberries', 1.5, []), { basket: basket({ lemons: 1, strawberries: 1.5 }) });
+  assert.deepEqual(setBasketItem(start, 'lemons', 0, []), { basket: basket() });
+  assert.deepEqual(setBasketItem(start, 'magic_fruit_box', 2, []), { basket: basket({ lemons: 1 }, 2) });
+  const refused = [
+    setBasketItem(start, 'lemons', 0.3, []),
+    setBasketItem(start, 'lemons', -1, []),
+    setBasketItem(start, 'lemons', 51, []),
+    setBasketItem(start, 'magic_fruit_box', 1.5, []),
+    setBasketItem(start, 'magic_fruit_box', 21, []),
+    setBasketItem(start, 'strawberries', 1, ['strawberries']),
+    setBasketItem(start, 'magic_fruit_box', 1, ['cucumbers']),
+    setBasketItem(start, 'apples' as never, 1, []),
+  ];
+  for (const result of refused) assert.ok('error' in result);
+  // Fruit that has sold out can still be taken out of the basket.
+  assert.deepEqual(setBasketItem(start, 'lemons', 0, ['lemons']), { basket: basket() });
 });
 
 test('invalid baskets from the browser are rejected', () => {

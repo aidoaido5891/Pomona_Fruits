@@ -21,6 +21,15 @@ const SCHEMA = `
   CREATE TABLE IF NOT EXISTS sold_out_fruit (
     fruit_id TEXT PRIMARY KEY
   );
+  CREATE TABLE IF NOT EXISTS charlie_messages (
+    id BIGSERIAL PRIMARY KEY,
+    conversation_id UUID NOT NULL,
+    role TEXT NOT NULL CHECK (role IN ('user', 'assistant')),
+    content TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  );
+  CREATE INDEX IF NOT EXISTS charlie_messages_conversation
+    ON charlie_messages (conversation_id, id);
 `;
 
 export const ORDER_STATUSES = ['new', 'delivered', 'picked_up', 'cancelled'] as const;
@@ -115,6 +124,31 @@ export async function listOrders(): Promise<OrderRow[]> {
               CASE WHEN status = 'new' THEN created_at END ASC,
               created_at DESC
      LIMIT 200`,
+  );
+  return rows;
+}
+
+export async function saveCharlieExchange(conversationId: string, question: string, answer: string): Promise<void> {
+  const db = await database();
+  await db.query(
+    `INSERT INTO charlie_messages (conversation_id, role, content)
+     VALUES ($1, 'user', $2), ($1, 'assistant', $3)`,
+    [conversationId, question, answer],
+  );
+}
+
+/** The most recent messages of one conversation, oldest first. */
+export async function getCharlieMessages(
+  conversationId: string,
+  limit: number,
+): Promise<{ role: 'user' | 'assistant'; content: string }[]> {
+  const db = await database();
+  const { rows } = await db.query<{ role: 'user' | 'assistant'; content: string }>(
+    `SELECT role, content FROM (
+       SELECT id, role, content FROM charlie_messages
+       WHERE conversation_id = $1 ORDER BY id DESC LIMIT $2
+     ) AS recent ORDER BY id ASC`,
+    [conversationId, limit],
   );
   return rows;
 }
