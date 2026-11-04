@@ -33,9 +33,13 @@ export async function placeOrder(raw: unknown): Promise<OrderResult> {
     inCity: data.inCity === true,
   };
 
+  // Mistakes in the form are reported first, because they don't depend on the database.
+  const formProblem = findOrderProblem(input, []);
+  if (formProblem) return { ok: false, error: formProblem };
+
   try {
-    const problem = findOrderProblem(input, await getSoldOut());
-    if (problem) return { ok: false, error: problem };
+    const stockProblem = findOrderProblem(input, await getSoldOut());
+    if (stockProblem) return { ok: false, error: stockProblem };
 
     const priced = priceBasket(basket, fulfilment);
     const promise = promiseFor(new Date(), fulfilment);
