@@ -17,7 +17,10 @@ export const viewport: Viewport = { themeColor: '#fbf6ea' };
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable}`}>
-      <body>{children}</body>
+      <body>
+        <div className="page-content">{children}</div>
+        <footer className="legal-footer">{'© 2026 <Fruits by Charlie>. Built with Claude Code'}</footer>
+      </body>
     </html>
   );
 }

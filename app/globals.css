@@ -79,6 +79,26 @@ small {
   text-transform: uppercase;
 }
 
+/* Page frame: keeps the footer at the bottom, even on short pages */
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.page-content {
+  flex: 1;
+}
+
+.legal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
 /* Buttons */
 
 .button {
@@ -881,6 +901,11 @@ small {
 /* Smaller screens */
 
 @media (max-width: 960px) {
+  /* Leaves room for the floating Ask Charlie button */
+  .legal-footer {
+    padding-bottom: 88px;
+  }
+
   .shop-layout {
     grid-template-columns: minmax(0, 1fr);
     padding-bottom: 32px;
@@ -922,7 +947,12 @@ small {
   .site-footer {
     grid-template-columns: minmax(0, 1fr);
     gap: 16px;
-    padding: 24px 16px 150px;
+    padding: 24px 16px;
+  }
+
+  /* Leaves room for the floating Ask Charlie button and checkout bar */
+  .legal-footer {
+    padding: 16px 16px 150px;
   }
 
   .charlie-launcher {
