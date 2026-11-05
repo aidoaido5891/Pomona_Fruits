@@ -12,8 +12,14 @@ export default function AutoRefresh({ openOrders }: { openOrders: number }) {
     return () => clearInterval(timer);
   }, [router]);
 
+  // Reapplied regularly, because Next.js sets the page's own title after this first runs.
   useEffect(() => {
-    document.title = openOrders > 0 ? `(${openOrders}) Orders | Pomona Fruits` : 'Orders | Pomona Fruits';
+    const showCount = () => {
+      document.title = openOrders > 0 ? `(${openOrders}) Orders | Pomona Fruits` : 'Orders | Pomona Fruits';
+    };
+    showCount();
+    const timer = setInterval(showCount, 1000);
+    return () => clearInterval(timer);
   }, [openOrders]);
 
   return null;
